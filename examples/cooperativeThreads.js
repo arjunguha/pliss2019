@@ -1,11 +1,12 @@
 let threads = [ ];
 
 function createThread(threadFunction) {
-  control(function(t) {
-      threads.push(t);
+  function switcher(k) {
+      threads.push(k);
       threadFunction();
       exitThread();
   });
+  control(switcher);
 }
 
 function exitThread() {
@@ -14,14 +15,15 @@ function exitThread() {
     }
 }
 
+
 function yieldThread() {
     if (threads.length === 0) {
         return;
     }
-    control(function(t) {
-        let next = threads.shift();
-        threads.push(t);
-        next();
+    control(function(k) {
+        threads.push(k);
+        let kOther = threads.shift();
+        kOther("resumed");
     });
 }
 
@@ -36,8 +38,8 @@ createThread(function() {
 createThread(function() {
     for (let i = 100; i < 110; i++) {
         yieldThread();
-        console.log(i);
-    }
+        console.log(i)
+    };
 })
 
 console.log("Done");

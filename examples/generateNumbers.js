@@ -21,8 +21,8 @@ function makeGenerator(generator) {
 
 let genNumbers = makeGenerator(function(next) {
     let i = 0;
-    while (true) {
-        next(i);
+    while (next(i) || true) {
+
         i = i + 1;
     }
 });
