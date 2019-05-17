@@ -1,47 +1,45 @@
 \documentclass[8pt,pdf]{beamer}
 \usepackage{pervasives}
+\usepackage{cancel}
 \usetheme{Madrid}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}{}
+\setbeamertemplate{blocks}[rounded][shadow=false]
 
 \begin{document}
 \mode<presentation>{}
 
 \title{First-Class Continuations: What and Why}
-\author{Arjun Guha}
-\institute{University of Massachusetts Amherst}
+\author{\large Arjun Guha}
+\institute{\normalsize University of Massachusetts Amherst}
 \date{}
 
 \begin{frame}
 \titlepage
 \end{frame}
 
-\AtBeginSection[]{
-  \begin{frame}
-  \vfill
-  \centering
-  \begin{beamercolorbox}[sep=8pt,center,shadow=true,rounded=true]{title}
-    \usebeamerfont{title}\insertsectionhead\par%
-  \end{beamercolorbox}
-  \vfill
-  \end{frame}
-}
-
 \begin{frame}
 
 \frametitle{Plan}
 
-\textbf{Today's topic}: An introduction to \emph{first-class continuations} and
-why they are significant.
+\textbf{Today's topic}: An introduction to \emph{first-class continuations}
+
+\vskip 0.5em
 
 \textbf{Tomorrow's topic}: How to implement first-class continuations by source-to-source
-translation.
+translation
+
+\pause
 
 \vskip 3em
 
 \textbf{Today's meta-topic}: The \emph{expressiveness} of programming language
-features.
+features
+
+\vskip 0.5em
 
 \textbf{Tomorrow's meta-topic}: How to conduct research on a full-fledged
-programming language, without losing your sanity.
+programming language, without losing your sanity
 
 \vskip 3em
 
@@ -51,11 +49,13 @@ have trouble with the syntax.
 
 \vskip 3em
 
+\pause
+
 \begin{alertblock}{Please interrupt and ask questions!}
 We are going to see a few code
 examples that are very challenging to understand.
 
-\vskip 1em
+\vskip 0.5em
 
 Ask questions of the form, \emph{``What if we change the example to do X
 instead?''} We will change the example and run it to see how it behaves.
@@ -75,15 +75,13 @@ First-class continuations are a kind of control operator.
 
 \vskip 1em
 
-Some other control operators that should be more familiar:
+Some other control operators that are more familiar:
 
 \begin{itemize}
 
-\item \emph{Conditionals}: \lstinline|if|, \lstinline|switch|,
-and the ternary expression (\lstinline|?:|)
+\item \emph{Conditionals}: \lstinline|if| and \lstinline|switch|
 
-\item \emph{Loops}: \lstinline|for|, \lstinline|while|,
-and \lstinline|do while|
+\item \emph{Loops}: \lstinline|for| and \lstinline|while|
 
 \item \emph{Structured jumps}: \lstinline|break| and \lstinline|continue|
 
@@ -92,6 +90,8 @@ and \lstinline|do while|
 \end{itemize}
 
 \vskip 1em
+
+\pause
 
 Recent versions of JavaScript support some additional control
 operators:
@@ -113,6 +113,23 @@ above in several other programming languages.
 
 \end{frame}
 
+\begin{frame}
+
+\frametitle{Why New Control Operators?}
+
+\begin{itemize}
+
+  \item The right control operator can make programs much easier to read
+  and write. We will show how, using JavaScript's asynchronous functions
+  and generator functions.
+
+  \item First-class continuations make it possible to build several control
+  operators as a library (i.e., without building them into the language).
+
+\end{itemize}
+
+\end{frame}
+
 \begin{frame}[fragile]
 \frametitle{Synchronous I/O}
 
@@ -123,7 +140,7 @@ performing I/O and then resumes execution with the result of the I/O operation.
 
 \vskip 1em
 For example, a function with the following type would synchronously
-download an image from a URL:
+download an image:
 \begin{lstlisting}
 loadImage(url: string) => Image
 \end{lstlisting}
@@ -140,6 +157,8 @@ drawImage(image);
 
 \vskip 1em
 
+\pause
+
 \begin{alertblock}{}
 In JavaScript, (almost) all I/O is asynchronous.
 It is impossible to write a synchronous
@@ -152,9 +171,9 @@ It is impossible to write a synchronous
 \frametitle{Asynchronous I/O}
 
 \begin{definition}
-An \emph{asynchronous} or \emph{nonblocking} function performs a
-task (e.g., I/O) in the background and applies a
-\emph{callback function} when the task completes.
+\emph{Asynchronous} or \emph{nonblocking} I/O performs the
+operation in the background and applies
+\emph{callback function} when the I/O result is available.
 \end{definition}
 
 \vskip 1em
@@ -163,6 +182,8 @@ We can implement an asynchronous function to load images:
 \begin{lstlisting}
 loadImage(url: string, callback: Image => void) => void
 \end{lstlisting}
+
+\pause
 
 So, to load two images in sequence:
 
@@ -181,9 +202,11 @@ loadImage("example1.jpg", callback1);
 
 \vskip 1em
 
+\pause
+
 \begin{alertblock}{}
 We need a new callback function to wait for the
-result of each new asychronous operation (``callback hell'').
+result of each new asynchronous operation (``callback hell'').
 \end{alertblock}
 
 \end{frame}
@@ -253,7 +276,6 @@ function* makeThreeGen() {
 let gen = makeThreeGen();
 console.log(gen.next().value); // displays 1
 console.log(gen.next().value); // displays 2
-// If we don't ask for the next value, it never produces 3
 \end{lstlisting}
 
 
@@ -287,19 +309,10 @@ loop in the generator would run forever.
 
 \begin{frame}
 
-\frametitle{Why First-Class Continuations}
+\frametitle{Some More Control Operators}
 
-In addition to familiar control operators, JavaScript recently
-added the following control operators:
-
-\begin{itemize}
-
-  \item Generator functions
-  \item Async functions
-
-\end{itemize}
-
-Certain programmers want more control operators:
+There are several other kinds of control operators that JavaScript
+does not have:
 
 \begin{itemize}
 
@@ -314,9 +327,13 @@ Certain programmers want more control operators:
 
 \end{itemize}
 
+\pause
+
 \begin{block}{Question}
 Should JavaScript implement these natively too?
 \end{block}
+
+\pause
 
 \vskip 1em
 
@@ -390,7 +407,7 @@ in a different environment.
 \frametitle{Active Expressions}
 
 \begin{definition}
-The \emph{active expression} in a program is the smallest element of the
+The \emph{active expression} in a program is the smallest part of the
 program that the language will evaluate next.
 \end{definition}
 
@@ -405,6 +422,9 @@ console.log(2 + 3 * 4);
 \draw[solid,color=blue] (2.6,0.4) rectangle (3.7,0.85);
 \end{tikzpicture}
 \vskip -1em
+
+\pause
+
 \begin{lstlisting}
 console.log(2 + 12);
 \end{lstlisting}
@@ -412,12 +432,17 @@ console.log(2 + 12);
 \draw[solid,color=blue] (1.9,0.4) rectangle (3.2,0.85);
 \end{tikzpicture}
 \vskip -1em
+
+\pause
+
 \begin{lstlisting}
 console.log(14);
 \end{lstlisting}
 \begin{tikzpicture}[framed, remember picture,overlay,shift={(0,0)}]
 \draw[solid,color=blue] (0,0.4) rectangle (2.8,0.85);
 \end{tikzpicture}
+
+\pause
 
 Two things to note:
 
@@ -443,7 +468,10 @@ else {
 \begin{tikzpicture}[framed, remember picture,overlay,shift={(0,0)}]
 \draw[solid,color=blue] (0.5,2.2) rectangle (2,1.9);
 \end{tikzpicture}
+
 \vskip -1em
+\pause
+
 \begin{lstlisting}
 if (false) {
   console.log("oops");
@@ -455,7 +483,10 @@ else {
 \begin{tikzpicture}[framed, remember picture,overlay,shift={(0,0)}]
 \draw[solid,color=blue] (0,0.3) rectangle (4.2,2.3);
 \end{tikzpicture}
+
 \vskip -1em
+\pause
+
 \begin{lstlisting}
 console.log("hi");
 \end{lstlisting}
@@ -489,17 +520,18 @@ Program & Active Expression & Continuation \\
 \hline
 \lstinline|console.log(2 + 3 * 4)| &
 \lstinline|3 * 4| &
-\lstinline|console.log(2 + hole)| \\
+\pause \lstinline|console.log(2 + hole)| \\
 \hline
 \lstinline|console.log(2 + 12)| &
 \lstinline|2 + 12| &
-\lstinline|console.log(hole)| \\
+\pause \lstinline|console.log(hole)| \\
 \hline
 \lstinline|console.log(14)| &
 \lstinline|console.log(14)| &
-\lstinline|hole| \\
+\pause \lstinline|hole| \\
 \hline\end{tabular}
 
+\pause
 \begin{alertblock}{Note}
 All programming languages have continuations. They are fundamental
 for evaluation.
@@ -524,19 +556,19 @@ To run a program, we:
 \begin{tabular}{|l|r|l|}
 \hline \multirow{3}{*}{Step 1}
 & Program & \lstinline|if (10 > 5) \{ log("o"  + "k"); \} else \{ log("oops"); \}| \\
-& Active Expression & \lstinline|3 * 4| \\
+\pause & Active Expression & \lstinline|10 > 5| \\
 & Continuation & \lstinline|console.log(2 + hole)| \\
 \hline \multirow{3}{*}{Step 2}
 & Program & \lstinline|if (true) \{ log("o" + "k"); \} else \{ log("oops"); \}| \\
-& Active Expression & \lstinline|if (true) \{ log("o" + "k"); \} else \{ log("oops"); \}| \\
+\pause & Active Expression & \lstinline|if (true) \{ log("o" + "k"); \} else \{ log("oops"); \}| \\
 & Continuation & \lstinline|hole| \\
 \hline \multirow{3}{*}{Step 3}
 & Program & \lstinline|log("o" + "k");| \\
-& Active Expression & \lstinline|"o" + "k"| \\
+\pause & Active Expression & \lstinline|"o" + "k"| \\
 & Continuation & \lstinline|log(hole);| \\
 \hline \multirow{3}{*}{Step 4}
 & Program & \lstinline|log("ok");| \\
-& Active Expression & \lstinline|log("ok");| \\
+\pause & Active Expression & \lstinline|log("ok");| \\
 & Continuation & \lstinline|hole| \\
 \hline
 \end{tabular}
@@ -553,16 +585,25 @@ In programming languages that support \emph{first-class continuations},
 it is possible to turn a continuation into a value.
 \end{definition}
 
-A continuation value can be stored in a variable:
+A continuation value stored in a variable:
 \begin{lstlisting}
 let k = (hole + 100);
 \end{lstlisting}
-We can create an array of continuation values:
+
+\pause
+
+An array of continuation values:
 \begin{lstlisting}
 let arr = [hole + 100, hole + 200];
 \end{lstlisting}
+A continuation passed as an argument to a function:
+\begin{lstlisting}
+f(hole + 100);
+\end{lstlisting}
 
 \vskip 1em
+
+\pause
 
 \begin{block}{Note}
 The \lstinline|hole| notation is pseudocode. It is not possible to
@@ -580,7 +621,7 @@ value looks like applying a unary function.) When a continuation \lstinline|k|
 is applied to a value \lstinline|v|:
 
 \begin{enumerate}
-  \item The \emph{current continuation is discarded}, and
+  \item We discard the current continuation, and
   \item The continuation \lstinline|k| is restored and the hole
   gets filled with \lstinline|v|.
 \end{enumerate}
@@ -598,10 +639,11 @@ is applied to a value \lstinline|v|:
 & Active Expression & \lstinline|k(10)| \\
 & Continuation & \lstinline|log(100 + hole);| \\
 \hline \multirow{4}{*}{Step 3}
-& Program & \lstinline|10 + 1;| \\
+\pause
+& Program & \lstinline|10 + 1;| \emph{This is \texttt{k} with \texttt{10} plugged in.} \\
 & Environment & \lstinline|k = (hole + 1)| \\
 & Active Expression & \lstinline|10 + 1| \\
-& Continuation & \lstinline|hole| \\
+& Continuation & \lstinline|hole| \emph{Continuation from Step 2 has been discarded} \\
 \hline \multirow{2}{*}{Step 4}
 & Result & \lstinline|11;| \\
 & Environment & \lstinline|k = (hole + 1)| \\
@@ -625,7 +667,7 @@ similar, but not identical to \texttt{call/cc}.
 
 \begin{frame}[fragile]
 
-\frametitle{Capturing Continuation}
+\frametitle{Capturing Continuations}
 
 Languages with first-class continuations provide a primitive operator
 that can turn its own continuation into a value (``capturing the current
@@ -646,7 +688,7 @@ which takes a unary function as an argument. When applied to a function
 
 \vskip 1em
 
-The following example is fairly trivial, since \lstinline|F| does not
+The following example is fairly simple, since \lstinline|F| does not
 use \lstinline|k|:
 
 \scalebox{0.7}{
@@ -662,6 +704,7 @@ use \lstinline|k|:
 & Active Expression & \lstinline|control(F)|  \\
 & Continuation & \lstinline|log(100 + hole);| \\
 \hline \multirow{4}{*}{Step 3}
+\pause
 & Program & \lstinline|log(200);| \\
 & Environment & \lstinline|let k = log(100 + hole); function F(k) \{ log(200); \};| \\
 & Active Expression & \lstinline|log(200);|  \\
@@ -699,11 +742,13 @@ log(100 + control(F));
 & Active Expression & \lstinline|control(F)|  \\
 & Continuation & \lstinline|log(100 + hole);| \\
 \hline \multirow{5}{*}{Step 3}
+\pause
 & Program & \lstinline|k(200); throw "bad"| \\
 & Environment & \lstinline|let k = log(100 + hole);| \\
 & Active Expression & \lstinline|k(200)|  \\
 & Continuation & \lstinline|hole; throw "bad";| \\
 \hline \multirow{5}{*}{Step 4}
+\pause
 & Program & \lstinline|log(100 + 200);| \\
 & Environment & \\
 & Active Expression & \lstinline|100 + 200|  \\
@@ -716,11 +761,50 @@ log(100 + control(F));
 \end{frame}
 
 \begin{frame}[fragile]
+\frametitle{Applying Captured Continuations (Example 2)}
+
+Trace the execution of this program:
+
+\begin{lstlisting}
+let i = 0;
+let saved = "nothing";
+function handler(k) {
+  saved = k;
+  saved("Start");
+}
+
+console.log(control(handler));
+if (i < 3) {
+  i = i + 1;
+  saved(i);
+}
+\end{lstlisting}
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Building New Control Operators with First-Class Continuations}
+
+\begin{itemize}
+
+  \item Code that uses first-class continuations directly is usually very hard
+  to read.
+
+  \item But, we can use first-class continuations to build other control
+  operators that are more straightforward.
+
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}[fragile]
 \frametitle{A Countdown Program}
 
 \begin{block}{Programming Challenge}
 Write a program that counts down seconds, displaying: ``Three'', ``Two'', ``One'', ``Liftoff!''.
 \end{block}
+
+\pause
 
 Solution:
 \begin{lstlisting}
@@ -742,6 +826,8 @@ console.log("Three");
 setTimeout(callback1, 1000);
 \end{lstlisting}
 
+\pause
+
 \begin{alertblock}{WTF}
 We cannot write a blocking sleep function in JavaScript (without busy-waiting).
 \end{alertblock}
@@ -749,8 +835,46 @@ We cannot write a blocking sleep function in JavaScript (without busy-waiting).
 \end{frame}
 
 \begin{frame}[fragile]
-\frametitle{The Sleep Operator}
+\frametitle{Application: The Sleep Operator}
 
+Using first-class continuations, we can simulate a synchronous
+\lstinline|sleep| function:
+\begin{lstlisting}
+function sleep(n) {
+  function sleeper(k) {
+    setTimeout(k, n);
+  }
+  control(sleeper);
+}
+\end{lstlisting}
+
+\pause
+
+The countdown program, refactored:
+\begin{lstlisting}
+console.log("Three");
+sleep(1000);
+console.log("Two");
+sleep(1000);
+console.log("One");
+sleep(1000);
+console.log("Liftoff!");
+\end{lstlisting}
+
+\vskip 1em
+
+\pause
+
+We can take any asynchronous function and simulate synchronous execution
+following this recipe. This is effectively what \lstinline|async function| and
+\lstinline|await| do.
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Application: The Sleep Operator}
+
+JavaScript does not support shared-memory concurrency (for now).
 Using first-class continuations, we can simulate a synchronous
 \lstinline|sleep| function:
 \begin{lstlisting}
@@ -779,8 +903,121 @@ We can take any asynchronous function and simulate synchronous execution
 following this recipe. This is effectively what \lstinline|async function| and
 \lstinline|await| do.
 
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Application: Cooperative Threads}
+
+\begin{definition} \emph{Cooperative threads} run several logical threads on a
+single physical thread, thus there is no parallelism and only one thread is
+running at a time (other threads are suspended in background). Moreover, the
+running thread has to explicitly yield control of the physical thread for
+another thread to start running.
+\end{definition}
+
+\pause
+
+Key ideas in the implementation:
+
+\begin{enumerate}
+
+  \item A global array of continuation values, where each continuation value is
+  a suspended thread.
+
+  \item To yield, we capture the continuation of the active thread, add it to
+  the array, and apply one of the other continuations.
+
+\end{enumerate}
+
+\pause
+
+\begin{columns}
+
+\begin{column}{0.4\textwidth}
+\begin{lstlisting}
+let threads = [ ];
+
+function createThread(f) {
+  function threadFunc() {
+    f();
+    start();
+  }
+  threads.push(threadFunc);
+  yieldThread();
+}
+\end{lstlisting}
+\end{column}
+
+\begin{column}{0.55\textwidth}
+\begin{lstlisting}
+function start() {
+  if (threads.length > 0) {
+    let nextThread = threads.shift();
+    nextThread();
+  }
+}
+
+function yieldThread() {
+  function switcher(k) {
+    threads.push(k);
+    let kOther = threads.shift();
+    kOther("resumed");
+  };
+
+  control(switcher);
+}
+\end{lstlisting}
+\end{column}
+
+\end{columns}
 
 \end{frame}
 
+\begin{frame}[fragile]
+\frametitle{Using Cooperative Threads}
 
+\begin{lstlisting}
+function threadA() {
+  for (let i = 0; i < 10; i++) {
+      yieldThread();
+      console.log(i);
+  }
+})
+
+
+function threadB() {
+  for (let i = 100; i < 110; i++) {
+      yieldThread();
+      console.log(i);
+  };
+})
+
+createThread(threadA);
+createThread(threadB);
+start(); // needed to activate other threads
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}
+\frametitle{Conclusion}
+
+\begin{itemize}
+
+  \item I apologize if your head hurts
+
+
+  \item Control operators can make certain kinds of programs much easier to
+  write (e.g., generator functions and async functions)
+
+  \item First-class continuations are a powerful primitive for building new
+  control operators
+
+  \item All examples online (including some that I have not covered)
+
+  \item Tomorrow: How to implement continuations by source-to-source translation
+
+
+\end{itemize}
+
+\end{frame}
 \end{document}
