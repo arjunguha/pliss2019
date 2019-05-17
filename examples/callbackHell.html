@@ -1,0 +1,26 @@
+<html>
+
+<body>
+<script>
+
+function drawImage(image) {
+    document.body.appendChild(image);
+}
+
+function loadImage(url, callback) {
+    let image = new Image(800, 600);
+    image.src = url;
+    function loaded(event) {
+        callback(image);
+    }
+    image.addEventListener("load", loaded);
+}
+
+loadImage("https://upload.wikimedia.org/wikipedia/commons/0/07/Fortran_acs_cover.jpeg",
+  drawImage);
+
+</script>
+
+</body>
+
+</html>

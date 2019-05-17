@@ -1,0 +1,786 @@
+\documentclass[8pt,pdf]{beamer}
+\usepackage{pervasives}
+\usetheme{Madrid}
+
+\begin{document}
+\mode<presentation>{}
+
+\title{First-Class Continuations: What and Why}
+\author{Arjun Guha}
+\institute{University of Massachusetts Amherst}
+\date{}
+
+\begin{frame}
+\titlepage
+\end{frame}
+
+\AtBeginSection[]{
+  \begin{frame}
+  \vfill
+  \centering
+  \begin{beamercolorbox}[sep=8pt,center,shadow=true,rounded=true]{title}
+    \usebeamerfont{title}\insertsectionhead\par%
+  \end{beamercolorbox}
+  \vfill
+  \end{frame}
+}
+
+\begin{frame}
+
+\frametitle{Plan}
+
+\textbf{Today's topic}: An introduction to \emph{first-class continuations} and
+why they are significant.
+
+\textbf{Tomorrow's topic}: How to implement first-class continuations by source-to-source
+translation.
+
+\vskip 3em
+
+\textbf{Today's meta-topic}: The \emph{expressiveness} of programming language
+features.
+
+\textbf{Tomorrow's meta-topic}: How to conduct research on a full-fledged
+programming language, without losing your sanity.
+
+\vskip 3em
+
+We will use basic JavaScript for all code samples. Even if you don't know the
+language, it should be straightforward to follow. Please ask questions if you
+have trouble with the syntax.
+
+\vskip 3em
+
+\begin{alertblock}{Please interrupt and ask questions!}
+We are going to see a few code
+examples that are very challenging to understand.
+
+\vskip 1em
+
+Ask questions of the form, \emph{``What if we change the example to do X
+instead?''} We will change the example and run it to see how it behaves.
+\end{alertblock}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Control Operators}
+
+\begin{definition}
+A \emph{control operator} is a programming language construct that
+changes the normal flow of execution in a program.
+\end{definition}
+
+First-class continuations are a kind of control operator.
+
+\vskip 1em
+
+Some other control operators that should be more familiar:
+
+\begin{itemize}
+
+\item \emph{Conditionals}: \lstinline|if|, \lstinline|switch|,
+and the ternary expression (\lstinline|?:|)
+
+\item \emph{Loops}: \lstinline|for|, \lstinline|while|,
+and \lstinline|do while|
+
+\item \emph{Structured jumps}: \lstinline|break| and \lstinline|continue|
+
+\item \emph{Exceptions}: \lstinline|try catch| and \lstinline|try finally|
+
+\end{itemize}
+
+\vskip 1em
+
+Recent versions of JavaScript support some additional control
+operators:
+
+\begin{itemize}
+
+\item \emph{Asynchronous functions:} \lstinline|async function|
+and \lstinline|await|
+
+\item \emph{Generator functions:} \lstinline|function*|, \lstinline|yield|,
+and \lstinline|yield*|
+
+\end{itemize}
+
+\begin{alertblock}{}
+None of this is JavaScript specific: you can find all the control operators
+above in several other programming languages.
+\end{alertblock}
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Synchronous I/O}
+
+\begin{definition}
+A \emph{synchronous} or \emph{blocking} I/O operation blocks execution while
+performing I/O and then resumes execution with the result of the I/O operation.
+\end{definition}
+
+\vskip 1em
+For example, a function with the following type would synchronously
+download an image from a URL:
+\begin{lstlisting}
+loadImage(url: string) => Image
+\end{lstlisting}
+We could then display the image:
+\begin{lstlisting}
+// drawImage(image: Image) => void
+function drawImage(image) {
+  document.body.appendChild(image);
+}
+
+let image = loadImage("example.jpg");
+drawImage(image);
+\end{lstlisting}
+
+\vskip 1em
+
+\begin{alertblock}{}
+In JavaScript, (almost) all I/O is asynchronous.
+It is impossible to write a synchronous
+\lstinline|loadImage| function in JavaScript.
+\end{alertblock}
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Asynchronous I/O}
+
+\begin{definition}
+An \emph{asynchronous} or \emph{nonblocking} function performs a
+task (e.g., I/O) in the background and applies a
+\emph{callback function} when the task completes.
+\end{definition}
+
+\vskip 1em
+
+We can implement an asynchronous function to load images:
+\begin{lstlisting}
+loadImage(url: string, callback: Image => void) => void
+\end{lstlisting}
+
+So, to load two images in sequence:
+
+\begin{lstlisting}
+function callback2(image2) {
+  drawImage(image);
+}
+
+function callback1(image1) {
+  drawImage(image);
+  loadImage("example2.jpg", callback2);
+}
+
+loadImage("example1.jpg", callback1);
+\end{lstlisting}
+
+\vskip 1em
+
+\begin{alertblock}{}
+We need a new callback function to wait for the
+result of each new asychronous operation (``callback hell'').
+\end{alertblock}
+
+\end{frame}
+
+\begin{frame}[fragile]
+
+\frametitle{Async Functions}
+
+\begin{definition}
+An \emph{async function} can start an asynchronous task,
+suspend its own execution, and then resume with the result of
+the task when the task completes.
+\end{definition}
+
+\begin{lstlisting}
+async function loadImage(url) {
+  // implementation omitted. Turns callbacks into Promises.
+}
+
+async function F() {
+  let image1 = await loadImage("example1.jpg");
+  drawImage(image1);
+  let image2 = await loadImage("example2.jpg");
+  drawImage(image2);
+}
+\end{lstlisting}
+
+\begin{itemize}
+
+\item Within an async function, we use the \lstinline|await| keyword to
+call another async function.
+
+\item We can read the program from top to bottom (contrast to
+the callback-based approach).
+
+\end{itemize}
+
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{Generator Functions}
+
+\begin{definition}
+A \emph{generator function} is a special kind of function
+that suspends its execution when it produces a value for
+the caller. The caller may then resume the generator function 
+to make it produce the nex value (if any).
+\end{definition}
+
+Ordinary functions \emph{do not} work this way: they
+run to completion and cannot be suspended.
+
+\vskip 1em
+
+\begin{lstlisting}
+function* makeThreeGen() {
+  yield 1;
+  yield 2;
+  yield 3;
+}
+\end{lstlisting}
+
+\vskip 1em
+
+\begin{lstlisting}
+let gen = makeThreeGen();
+console.log(gen.next().value); // displays 1
+console.log(gen.next().value); // displays 2
+// If we don't ask for the next value, it never produces 3
+\end{lstlisting}
+
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Unbounded Generators}
+
+The following example helps illustrate that the \lstinline|yield|
+statement truly suspends execution of the generator function:
+\begin{lstlisting}
+function* genNats() {
+  let i = 0;
+  while (true) {
+    yield i;
+    i = i + 1;
+  }
+}
+
+let gen = genNats();
+
+// Displays 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
+for (let i = 0; i < 10; i++) {
+  console.log(gen.next().value);
+}
+\end{lstlisting}
+
+If \lstinline|yield| did not suspend the generator function, the
+loop in the generator would run forever.
+\end{frame}
+
+\begin{frame}
+
+\frametitle{Why First-Class Continuations}
+
+In addition to familiar control operators, JavaScript recently
+added the following control operators:
+
+\begin{itemize}
+
+  \item Generator functions
+  \item Async functions
+
+\end{itemize}
+
+Certain programmers want more control operators:
+
+\begin{itemize}
+
+  \item \emph{Sampling executions from probability distributions}:
+  \href{http://webppl.org}{WebPPL} implements a compiler from a small subset of
+  JavaScript with extensions to support probabilistic programming.
+
+  \item \emph{Backtracking search:} \href{http://tau-prolog.org}{Tau Prolog}
+  implements a Prolog interpreter in JavaScript.
+
+  \item \emph{(Green) Threads:} \href{https://webkit.org/blog/7846/concurrent-javascript-it-can-work/}{Concurrent JavaScript}
+
+\end{itemize}
+
+\begin{block}{Question}
+Should JavaScript implement these natively too?
+\end{block}
+
+\vskip 1em
+
+Using first-class continuations, we can implement each control operator above
+as a small library. In essence, first-class continuations subsume a wide
+variety of other control operators and language features.
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Semantics, Informally}
+
+We need to understand three concepts before we get
+to first-class continuations:
+
+\begin{enumerate}
+
+  \item Environments
+
+  \item Active Expressions
+
+  \item Continuations
+
+\end{enumerate}
+
+This will be an quick, informal introduction via examples. For a rigorous, formal
+approach, see
+\href{https://mitpress.mit.edu/books/semantics-engineering-plt-redex}{Semantis
+Engineering with PLT Redex}.
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Environments}
+
+\begin{definition}
+The \emph{environment} of a program maps variable names to values.
+\end{definition}
+
+
+\begin{columns}
+
+\begin{column}{0.4\textwidth}
+\begin{lstlisting}
+let x = 100;
+let y = 200;
+console.log(x + y);
+\end{lstlisting}
+At the last line, the environment holds the values of
+\lstinline|x| and \lstinline|y|.
+\end{column}
+
+\begin{column}{0.4\textwidth}
+\begin{lstlisting}
+function F(x) {
+  console.log(x);
+}
+
+F(100);
+F(200);
+\end{lstlisting}
+Each application evaluates the body of \lstinline|F| 
+in a different environment.
+\end{column}
+
+\end{columns}
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Active Expressions}
+
+\begin{definition}
+The \emph{active expression} in a program is the smallest element of the
+program that the language will evaluate next.
+\end{definition}
+
+Examples:
+
+\begin{columns}
+\begin{column}{0.4\textwidth}
+\begin{lstlisting}
+console.log(2 + 3 * 4);
+\end{lstlisting}
+\begin{tikzpicture}[framed, remember picture,overlay,shift={(0,0)}]
+\draw[solid,color=blue] (2.6,0.4) rectangle (3.7,0.85);
+\end{tikzpicture}
+\vskip -1em
+\begin{lstlisting}
+console.log(2 + 12);
+\end{lstlisting}
+\begin{tikzpicture}[framed, remember picture,overlay,shift={(0,0)}]
+\draw[solid,color=blue] (1.9,0.4) rectangle (3.2,0.85);
+\end{tikzpicture}
+\vskip -1em
+\begin{lstlisting}
+console.log(14);
+\end{lstlisting}
+\begin{tikzpicture}[framed, remember picture,overlay,shift={(0,0)}]
+\draw[solid,color=blue] (0,0.4) rectangle (2.8,0.85);
+\end{tikzpicture}
+
+Two things to note:
+
+\begin{itemize}
+
+\item A statement or the whole program can be the active expression.
+
+\item Values cannot be active expressions.
+
+\end{itemize}
+
+\end{column}
+
+\begin{column}{0.4\textwidth}
+\begin{lstlisting}
+if (5 > 10) {
+  console.log("oops");
+}
+else {
+  console.log("hi");
+}
+\end{lstlisting}
+\begin{tikzpicture}[framed, remember picture,overlay,shift={(0,0)}]
+\draw[solid,color=blue] (0.5,2.2) rectangle (2,1.9);
+\end{tikzpicture}
+\vskip -1em
+\begin{lstlisting}
+if (false) {
+  console.log("oops");
+}
+else {
+  console.log("hi");
+}
+\end{lstlisting}
+\begin{tikzpicture}[framed, remember picture,overlay,shift={(0,0)}]
+\draw[solid,color=blue] (0,0.3) rectangle (4.2,2.3);
+\end{tikzpicture}
+\vskip -1em
+\begin{lstlisting}
+console.log("hi");
+\end{lstlisting}
+\begin{tikzpicture}[framed, remember picture,overlay,shift={(0,0)}]
+\draw[solid,color=blue] (0,0.4) rectangle (3.2,0.85);
+\end{tikzpicture}
+\end{column}
+
+\end{columns}
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Continuations}
+
+\begin{definition}
+The \emph{continuation} of an active expression is the rest of the program (i.e.,
+excluding the active expression).
+\end{definition}
+
+Therefore, the continuation is an expression with a single ``hole'', where
+the active expression used to be. We will write that hole as $\Box$.
+
+\vskip 1em
+
+For example:
+\vskip 1em
+
+\begin{tabular}{l|l|l}
+Program & Active Expression & Continuation \\
+\hline
+\lstinline|console.log(2 + 3 * 4)| &
+\lstinline|3 * 4| &
+\lstinline|console.log(2 + hole)| \\
+\hline
+\lstinline|console.log(2 + 12)| &
+\lstinline|2 + 12| &
+\lstinline|console.log(hole)| \\
+\hline
+\lstinline|console.log(14)| &
+\lstinline|console.log(14)| &
+\lstinline|hole| \\
+\hline\end{tabular}
+
+\begin{alertblock}{Note}
+All programming languages have continuations. They are fundamental
+for evaluation.
+\end{alertblock}
+
+To run a program, we:
+
+\begin{enumerate}
+  \item Identify the active expression and the continuation,
+  \item Evaluate the active expression,
+  \item Plug the result of evaluation into the hole that the active
+  expression,
+  \item Repeat, until the program does not have an active expression.
+\end{enumerate}
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Another Example of Continuations}
+
+\scalebox{0.8}{
+\begin{tabular}{|l|r|l|}
+\hline \multirow{3}{*}{Step 1}
+& Program & \lstinline|if (10 > 5) \{ log("o"  + "k"); \} else \{ log("oops"); \}| \\
+& Active Expression & \lstinline|3 * 4| \\
+& Continuation & \lstinline|console.log(2 + hole)| \\
+\hline \multirow{3}{*}{Step 2}
+& Program & \lstinline|if (true) \{ log("o" + "k"); \} else \{ log("oops"); \}| \\
+& Active Expression & \lstinline|if (true) \{ log("o" + "k"); \} else \{ log("oops"); \}| \\
+& Continuation & \lstinline|hole| \\
+\hline \multirow{3}{*}{Step 3}
+& Program & \lstinline|log("o" + "k");| \\
+& Active Expression & \lstinline|"o" + "k"| \\
+& Continuation & \lstinline|log(hole);| \\
+\hline \multirow{3}{*}{Step 4}
+& Program & \lstinline|log("ok");| \\
+& Active Expression & \lstinline|log("ok");| \\
+& Continuation & \lstinline|hole| \\
+\hline
+\end{tabular}
+}
+
+\end{frame}
+
+\begin{frame}[fragile]
+
+\frametitle{First-Class Continuations}
+
+\begin{definition}
+In programming languages that support \emph{first-class continuations},
+it is possible to turn a continuation into a value.
+\end{definition}
+
+A continuation value can be stored in a variable:
+\begin{lstlisting}
+let k = (hole + 100);
+\end{lstlisting}
+We can create an array of continuation values:
+\begin{lstlisting}
+let arr = [hole + 100, hole + 200];
+\end{lstlisting}
+
+\vskip 1em
+
+\begin{block}{Note}
+The \lstinline|hole| notation is pseudocode. It is not possible to
+directly write a continuation in a program, but it helps understand
+what is happening under the hood. We will resolve this in a moment.
+\end{block}
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Applying a Continuation Value}
+
+A continuation value can be applied to an argument. (Applying a continuation
+value looks like applying a unary function.) When a continuation \lstinline|k|
+is applied to a value \lstinline|v|:
+
+\begin{enumerate}
+  \item The \emph{current continuation is discarded}, and
+  \item The continuation \lstinline|k| is restored and the hole
+  gets filled with \lstinline|v|.
+\end{enumerate}
+
+\scalebox{0.8}{
+\begin{tabular}{|l|r|l|}
+\hline \multirow{4}{*}{Step 1}
+& Program & \lstinline|let k = (hole + 1); log(100 + k(10))| \\
+& Environment &  \\
+& Active Expression & \lstinline|let k = (hole + 1)| \\
+& Continuation & \lstinline|hole; log(100 + k(10))| \\
+\hline \multirow{4}{*}{Step 2}
+& Program & \lstinline|log(100 + k(10));| \\
+& Environment & \lstinline|k = (hole + 1)| \\
+& Active Expression & \lstinline|k(10)| \\
+& Continuation & \lstinline|log(100 + hole);| \\
+\hline \multirow{4}{*}{Step 3}
+& Program & \lstinline|10 + 1;| \\
+& Environment & \lstinline|k = (hole + 1)| \\
+& Active Expression & \lstinline|10 + 1| \\
+& Continuation & \lstinline|hole| \\
+\hline \multirow{2}{*}{Step 4}
+& Result & \lstinline|11;| \\
+& Environment & \lstinline|k = (hole + 1)| \\
+\hline
+\end{tabular}
+}
+
+\end{frame}
+
+\begin{frame}
+
+\frametitle{Note on \texttt{call/cc}}
+
+\begin{alertblock}{Note}
+If you have see continuations before, you may know about
+\texttt{call/cc}. We are going to introduce an operator that is
+similar, but not identical to \texttt{call/cc}.
+\end{alertblock}
+
+\end{frame}
+
+\begin{frame}[fragile]
+
+\frametitle{Capturing Continuation}
+
+Languages with first-class continuations provide a primitive operator
+that can turn its own continuation into a value (``capturing the current
+continuation'').
+
+\vskip 1em
+
+We are going to introduce a new unary operator called \lstinline|control|,
+which takes a unary function as an argument. When applied to a function
+\lstinline|f|, \lstinline|control(f)|:
+
+\begin{enumerate}
+
+  \item Turns its own continuation into a continuation value \lstinline|k|, and
+  \item Applies the function to the continuation value \lstinline|f(k)| in
+  the empty continuation.
+\end{enumerate}
+
+\vskip 1em
+
+The following example is fairly trivial, since \lstinline|F| does not
+use \lstinline|k|:
+
+\scalebox{0.7}{
+\begin{tabular}{|l|l|l|}
+\hline \multirow{4}{*}{Step 1}
+& Program & \lstinline|function F(k) \{ log(200); \}; log(100 + control(F));| \\
+& Environment & \\
+& Active Expression & \lstinline|function F(k) \{ log(200); \}|  \\
+& Continuation & \lstinline|hole; log(100 + control(F));| \\
+\hline \multirow{4}{*}{Step 2}
+& Program & \lstinline|log(100 + control(F));| \\
+& Environment & \lstinline|function F(k) \{ log(200); \};| \\
+& Active Expression & \lstinline|control(F)|  \\
+& Continuation & \lstinline|log(100 + hole);| \\
+\hline \multirow{4}{*}{Step 3}
+& Program & \lstinline|log(200);| \\
+& Environment & \lstinline|let k = log(100 + hole); function F(k) \{ log(200); \};| \\
+& Active Expression & \lstinline|log(200);|  \\
+& Continuation & \lstinline|hole| \\
+\hline
+\end{tabular}
+}
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Applying a Captured Continuation}
+
+In the following example, the \lstinline|throw|
+statement is never reached:
+
+\begin{lstlisting}
+function F(k) {
+  k(200);
+  throw "bad";
+}
+log(100 + control(F));
+\end{lstlisting}
+
+\scalebox{0.8}{
+\begin{tabular}{|l|r|l|}
+\hline \multirow{5}{*}{Step 1}
+& Program & \lstinline|function F(k) \{ k(200); throw "bad";  \}; log(100 + control(F));| \\
+& Environment & \\
+& Active Expression & \lstinline|function F(k) \{ k(200); throw "bad";  \};|  \\
+& Continuation & \lstinline|hole; log(100 + control(F));| \\
+\hline \multirow{5}{*}{Step 2}
+& Program & \lstinline|log(100 + control(F));| \\
+& Environment & \lstinline|function F(k) \{ k(200); throw "bad";  \};| \\
+& Active Expression & \lstinline|control(F)|  \\
+& Continuation & \lstinline|log(100 + hole);| \\
+\hline \multirow{5}{*}{Step 3}
+& Program & \lstinline|k(200); throw "bad"| \\
+& Environment & \lstinline|let k = log(100 + hole);| \\
+& Active Expression & \lstinline|k(200)|  \\
+& Continuation & \lstinline|hole; throw "bad";| \\
+\hline \multirow{5}{*}{Step 4}
+& Program & \lstinline|log(100 + 200);| \\
+& Environment & \\
+& Active Expression & \lstinline|100 + 200|  \\
+& Continuation & \lstinline|log(hole);| \\
+\hline
+\multicolumn{3}{c}{$\cdots$}
+\end{tabular}
+}
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{A Countdown Program}
+
+\begin{block}{Programming Challenge}
+Write a program that counts down seconds, displaying: ``Three'', ``Two'', ``One'', ``Liftoff!''.
+\end{block}
+
+Solution:
+\begin{lstlisting}
+function callback3() {
+  console.log("Liftoff!");
+}
+
+function callback2() {
+  console.log("One");
+  setTimeout(callback3, 1000);
+}
+
+function callback1() {
+  console.log("Two");
+  setTimeout(callback2, 1000);
+}
+
+console.log("Three");
+setTimeout(callback1, 1000);
+\end{lstlisting}
+
+\begin{alertblock}{WTF}
+We cannot write a blocking sleep function in JavaScript (without busy-waiting).
+\end{alertblock}
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{The Sleep Operator}
+
+Using first-class continuations, we can simulate a synchronous
+\lstinline|sleep| function:
+\begin{lstlisting}
+function sleep(n) {
+  function sleeper(k) {
+    setTimeout(k, n);
+  }
+  control(sleeper);
+}
+\end{lstlisting}
+
+The countdown program, refactored:
+\begin{lstlisting}
+console.log("Three");
+sleep(1000);
+console.log("Two");
+sleep(1000);
+console.log("One");
+sleep(1000);
+console.log("Liftoff!");
+\end{lstlisting}
+
+\vskip 1em
+
+We can take any asynchronous function and simulate synchronous execution
+following this recipe. This is effectively what \lstinline|async function| and
+\lstinline|await| do.
+
+
+\end{frame}
+
+
+\end{document}

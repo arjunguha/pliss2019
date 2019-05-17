@@ -1,0 +1,38 @@
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{tikz}
+\usepackage{xcolor}
+\usepackage{etoolbox}
+\usepackage{cleveref}
+\usepackage{multirow}
+\usetikzlibrary{arrows}
+\usetikzlibrary{arrows.meta, positioning}
+\usetikzlibrary{shapes.geometric}
+\usetikzlibrary{backgrounds}
+
+\lstdefinelanguage{JavaScript}{
+  keywords={let,if,throw,control,switch,while,do,break,continue,try,catch,finally,else,new,this,class,function*,yield,async,await,function,return,for},
+  columns=fullflexible,
+  keepspaces=true,
+  mathescape=true,
+  backgroundcolor=\color{yellow!10},
+  escapechar=@,
+  showlines=true,
+  numberstyle=\fontsize{5}{5}\rmfamily,
+  numbersep=0.4em,
+  literate={hole}{$\Box$}1,
+  stepnumber=1,
+  firstnumber=1,
+  numbers=left
+}
+
+% Computer Modern does not implement \bfseries
+\renewcommand{\ttdefault}{pcr}
+
+\lstdefinestyle{normalstyle}{
+  basicstyle={\fontsize{8}{8.2}\ttfamily},
+  keywordstyle={\bfseries\ttfamily},
+  numbers=none}
+
+\lstset{style=normalstyle}
+\lstset{language=JavaScript}
