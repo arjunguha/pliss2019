@@ -554,7 +554,7 @@ To run a program, we:
 \hline \multirow{3}{*}{Step 1}
 & Program & \lstinline|if (10 > 5) \{ log("o"  + "k"); \} else \{ log("oops"); \}| \\
 \pause & Active Expression & \lstinline|10 > 5| \\
-& Continuation & \lstinline|console.log(2 + hole)| \\
+& Continuation & \lstinline|if (hole) \{ log("o"  + "k"); \} else \{ log("oops"); \}| \\
 \hline \multirow{3}{*}{Step 2}
 & Program & \lstinline|if (true) \{ log("o" + "k"); \} else \{ log("oops"); \}| \\
 \pause & Active Expression & \lstinline|if (true) \{ log("o" + "k"); \} else \{ log("oops"); \}| \\
@@ -861,40 +861,6 @@ console.log("Liftoff!");
 \vskip 1em
 
 \pause
-
-We can take any asynchronous function and simulate synchronous execution
-following this recipe. This is effectively what \lstinline|async function| and
-\lstinline|await| do.
-
-\end{frame}
-
-\begin{frame}[fragile]
-\frametitle{Application: The Sleep Operator}
-
-JavaScript does not support shared-memory concurrency (for now).
-Using first-class continuations, we can simulate a synchronous
-\lstinline|sleep| function:
-\begin{lstlisting}
-function sleep(n) {
-  function sleeper(k) {
-    setTimeout(k, n);
-  }
-  control(sleeper);
-}
-\end{lstlisting}
-
-The countdown program, refactored (\editorex{liftoff_sleep.js}):
-\begin{lstlisting}
-console.log("Three");
-sleep(1000);
-console.log("Two");
-sleep(1000);
-console.log("One");
-sleep(1000);
-console.log("Liftoff!");
-\end{lstlisting}
-
-\vskip 1em
 
 We can take any asynchronous function and simulate synchronous execution
 following this recipe. This is effectively what \lstinline|async function| and
