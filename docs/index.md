@@ -1,6 +1,5 @@
 ---
 title: PLISS 2019 Lectures on Continuations
-description: PLISS 2019 Lectures on Continuations
 ---
 
 Written by [Arjun Guha](https://people.cs.umass.edu/~arjun/),
