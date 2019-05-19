@@ -358,7 +358,7 @@ to first-class continuations:
 
 This will be an quick, informal introduction via examples. For a rigorous, formal
 approach, see
-\href{https://mitpress.mit.edu/books/semantics-engineering-plt-redex}{Semantis
+\href{https://mitpress.mit.edu/books/semantics-engineering-plt-redex}{Semantics
 Engineering with PLT Redex}.
 
 \end{frame}
@@ -686,7 +686,7 @@ which takes a unary function as an argument. When applied to a function
 \vskip 1em
 
 The following example is fairly simple, since \lstinline|F| does not
-use \lstinline|k|:
+use \lstinline|k| (\editorex{example1.js}):
 
 \scalebox{0.7}{
 \begin{tabular}{|l|l|l|}
@@ -713,10 +713,10 @@ use \lstinline|k|:
 \end{frame}
 
 \begin{frame}[fragile]
-\frametitle{Applying a Captured Continuation}
+\frametitle{Applying a Captured Continuation (Example 1)}
 
-In the following example, the \lstinline|throw|
-statement is never reached:
+In the following example, the \lstinline|throw| statement is never reached
+(\editorex{example2.js}):
 
 \begin{lstlisting}
 function F(k) {
@@ -770,7 +770,7 @@ function handler(k) {
   saved("Start");
 }
 
-console.log(control(handler));
+log(control(handler));
 if (i < 3) {
   i = i + 1;
   saved(i);
@@ -803,7 +803,7 @@ Write a program that counts down seconds, displaying: ``Three'', ``Two'', ``One'
 
 \pause
 
-Solution:
+Solution (\editorex{liftoff_callbacks.js}):
 \begin{lstlisting}
 function callback3() {
   console.log("Liftoff!");
@@ -883,7 +883,7 @@ function sleep(n) {
 }
 \end{lstlisting}
 
-The countdown program, refactored:
+The countdown program, refactored (\editorex{liftoff_sleep.js}):
 \begin{lstlisting}
 console.log("Three");
 sleep(1000);
@@ -973,6 +973,8 @@ function yieldThread() {
 \begin{frame}[fragile]
 \frametitle{Using Cooperative Threads}
 
+(\editorex{cooperative_threads.js})
+
 \begin{lstlisting}
 function threadA() {
   for (let i = 0; i < 10; i++) {
@@ -980,7 +982,6 @@ function threadA() {
       console.log(i);
   }
 })
-
 
 function threadB() {
   for (let i = 100; i < 110; i++) {
@@ -1001,7 +1002,6 @@ start(); // needed to activate other threads
 \begin{itemize}
 
   \item I apologize if your head hurts
-
 
   \item Control operators can make certain kinds of programs much easier to
   write (e.g., generator functions and async functions)

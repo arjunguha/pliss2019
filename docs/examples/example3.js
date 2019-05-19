@@ -1,6 +1,11 @@
-let x = control(function(k) {
-    console.log("In argument to control");
-    return k('Hello') + ' ignored';
-    console.log("Will not display");
-});
-console.log("Result is: " + x);
+let saved = "nothing";
+function handler(k) {
+  saved = k;
+  saved("Start");
+}
+
+console.log(control(handler));
+if (i < 3) {
+  i = i + 1;
+  saved(i);
+}

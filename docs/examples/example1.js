@@ -1,4 +1,4 @@
-let x = control(function(k) {
-    console.log("In argument to control");
-});
-console.log("Will not display");
+function F(k) {
+    console.log(200);
+};
+console.log(100 + control(F));
