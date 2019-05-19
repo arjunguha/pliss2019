@@ -1,0 +1,33 @@
+<html>
+
+<body>
+<script>
+
+function drawImage(image) {
+    document.body.appendChild(image);
+}
+
+function loadImage(url) {
+    return new Promise((resolve, reject) => {
+        let image = new Image(200, 150);
+        image.src = url;
+        function loaded(event) {
+            resolve(image);
+        }
+        image.addEventListener("load", loaded);
+    });
+}
+
+async function F() {
+    let image1 = await loadImage("calvin1.jpg");
+    drawImage(image1);
+    let image2 = await loadImage("calvin2.jpg");
+    drawImage(image2);
+}
+
+F();
+</script>
+
+</body>
+
+</html>

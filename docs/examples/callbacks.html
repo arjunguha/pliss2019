@@ -1,0 +1,32 @@
+<html>
+
+<body>
+<script>
+
+function drawImage(image) {
+    document.body.appendChild(image);
+}
+function loadImage(url, callback) {
+    let image = new Image(200, 150);
+    image.src = url;
+    function loaded(event) {
+        callback(image);
+    }
+    image.addEventListener("load", loaded);
+}
+
+function callback2(image) {
+    drawImage(image);
+}
+
+function callback1(image) {
+    drawImage(image);
+    loadImage("calvin2.jpg", callback2);
+}
+
+loadImage("calvin1.jpg", callback1);
+</script>
+
+</body>
+
+</html>

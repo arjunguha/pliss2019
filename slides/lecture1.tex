@@ -11,6 +11,7 @@
 
 \begin{frame}
 \titlepage
+
 \end{frame}
 
 \begin{frame}
@@ -180,7 +181,7 @@ loadImage(url: string, callback: Image => void) => void
 
 \pause
 
-So, to load two images in sequence:
+So, to load two images in sequence (\linkex{callbacks.html}):
 
 \begin{lstlisting}
 function callback2(image2) {
@@ -201,7 +202,7 @@ loadImage("example1.jpg", callback1);
 
 \begin{alertblock}{}
 We need a new callback function to wait for the
-result of each new asynchronous operation (``callback hell'').
+result of each new asynchronous operation.
 \end{alertblock}
 
 \end{frame}
@@ -216,8 +217,9 @@ suspend its own execution, and then resume with the result of
 the task when the task completes.
 \end{definition}
 
+(\linkex{async.html})
 \begin{lstlisting}
-async function loadImage(url) {
+function loadImage(url) {
   // implementation omitted. Turns callbacks into Promises.
 }
 
