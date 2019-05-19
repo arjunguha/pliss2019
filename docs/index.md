@@ -1,10 +1,15 @@
 ---
 title: PLISS 2019 Lectures on Continuations
+description: PLISS 2019 Lectures on Continuations
 ---
 
-**[Arjun Guha](https://people.cs.umass.edu/~arjun/), University of Massachusetts Amherst**
+Written by [Arjun Guha](https://people.cs.umass.edu/~arjun/),
+[University of Massachusetts Amherst](https://www.cics.umass.edu)
 
-This website hosts the material for the PLISS 2019 lectures on continuations:
-
+- [JavaScript Continuations Playground](./playground)
+  - [Simulated Blocking I/O](./playground/index.html#../examples/liftoff_sleep.js)
+  - [Cooperative Threads](./playground/index.html#../examples/cooperative_threads.js)
+  - [Generators](./playground/index.html#../examples/number_generator.js)
+  - [Same Fringe Problem](./playground/index.html#../examples/same_fringe.js)
 - Lecture 1 slides: [First-Class Continuations: What and Why](./lecture1.pdf)
-- [Continuations Playground](./playground)
+
