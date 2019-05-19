@@ -10,5 +10,6 @@ Written by [Arjun Guha](https://people.cs.umass.edu/~arjun/),
   - [Cooperative Threads](./playground/index.html#../examples/cooperative_threads.js)
   - [Generators](./playground/index.html#../examples/number_generator.js)
   - [Same Fringe Problem](./playground/index.html#../examples/same_fringe.js)
+  - [Nondeterministic Choice](./playground/index.html#../examples/choice.js)
 - Lecture 1 slides: [First-Class Continuations: What and Why](./lecture1.pdf)
 
