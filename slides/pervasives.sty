@@ -9,13 +9,17 @@
 \usetikzlibrary{arrows.meta, positioning}
 \usetikzlibrary{shapes.geometric}
 \usetikzlibrary{backgrounds}
+\usepackage{pifont}
+
+\newcommand{\cmark}{\ding{51}}
+\newcommand{\xmark}{\ding{55}}
 
 \hypersetup{
   colorlinks=true,
   urlcolor=red
 }
 \lstdefinelanguage{JavaScript}{
-  keywords={let,if,throw,control,switch,while,do,break,continue,try,catch,finally,else,new,this,class,function*,yield,async,await,function,return,for},
+  keywords={let,if,throw,control,switch,while,do,break,continue,try,catch,finally,else,new,this,class,function*,yield,async,await,function,return,for,goto},
   columns=fullflexible,
   keepspaces=true,
   mathescape=true,
@@ -48,3 +52,4 @@
 
 \newcommand{\linkex}[1]{\href{http://plasma-umass.org/pliss2019/examples/#1}{link}}
 \newcommand{\editorex}[1]{\href{http://plasma-umass.org/pliss2019/playground/index.html\#../examples/#1}{link}}
+

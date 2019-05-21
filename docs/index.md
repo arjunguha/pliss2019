@@ -12,4 +12,5 @@ Written by [Arjun Guha](https://people.cs.umass.edu/~arjun/),
   - [Same Fringe Problem](./playground/index.html#../examples/same_fringe.js)
   - [Nondeterministic Choice](./playground/index.html#../examples/choice.js)
 - Lecture 1 slides: [First-Class Continuations: What and Why](./lecture1.pdf)
+- Lecture 1 slides: [Implementing First-Class Continuations by Source-to-Source Translation](./lecture2.pdf)
 
