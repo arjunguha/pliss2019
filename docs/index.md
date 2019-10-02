@@ -6,6 +6,7 @@ Written by [Arjun Guha](https://people.cs.umass.edu/~arjun/),
 [University of Massachusetts Amherst](https://www.cics.umass.edu)
 
 - Lecture 1 slides: [First-Class Continuations: What and Why](./lecture1.pdf)
+- Lecture 1 video: [YouTube](https://www.youtube.com/watch?v=yvlhwZgUPG0)
 - Lecture 2 slides: [Implementing First-Class Continuations by Source-to-Source Translation](./lecture2.pdf)
 - [JavaScript Continuations Playground](./playground)
   - [Simulated Blocking I/O](./playground/index.html#../examples/liftoff_sleep.js)
